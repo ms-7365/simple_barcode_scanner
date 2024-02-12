@@ -3,10 +3,13 @@ library simple_barcode_scanner;
 import 'package:flutter/material.dart';
 import 'package:simple_barcode_scanner/enum.dart';
 import 'package:simple_barcode_scanner/screens/shared.dart';
-
+import 'package:kofoos/src/pages/search/search_detail_page.dart';
+import 'package:kofoos/src/pages/search/api/search_api.dart';
+import 'package:kofoos/src/pages/camera/barcode_view.dart';
 export 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
-class SimpleBarcodeScannerPage extends StatelessWidget {
+class SimpleBarcodeScannerPage extends StatefulWidget {
   ///Barcode line color default set to #ff6666
   final String lineColor;
 
@@ -25,31 +28,15 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
   ///center Title
   final bool? centerTitle;
 
-  /// Specify a child widget to be positioned beneath the scanner.
-  /// This is beneficial when you need to include a customized text field
-  /// for manual entry of barcode/QR code.
-  /// example:
-  ///  ```dart
-  /// child: Column(
-  ///   children: [
-  ///     SizedBox(
-  ///       height: 20,
-  ///     ),
-  ///    TextField(
-  ///       decoration: InputDecoration(
-  ///         labelText: 'Enter Barcode manually',
-  ///         border: OutlineInputBorder(),
-  ///       ),
-  ///     ),
-  ///   ],
-  /// ),
-  /// ```
   final Widget? child;
+
+  @override
+  _SimpleBarcodeScannerPageState createState() => _SimpleBarcodeScannerPageState();
 
   /// appBatTitle and centerTitle support in web and window only
   /// Remaining field support in only mobile devices
-  const SimpleBarcodeScannerPage({
-    super.key,
+  SimpleBarcodeScannerPage({
+    Key? key,
     this.lineColor = "#ff6666",
     this.cancelButtonText = "Cancel",
     this.isShowFlashIcon = false,
@@ -57,21 +44,112 @@ class SimpleBarcodeScannerPage extends StatelessWidget {
     this.appBarTitle,
     this.centerTitle,
     this.child,
-  });
+  }) : super(key: key);
+
+}
+
+class _SimpleBarcodeScannerPageState extends State<SimpleBarcodeScannerPage>{
+
+
+
+
+  void showOverlayButton() async {
+    if (await FlutterOverlayWindow.isPermissionGranted()) {
+      await FlutterOverlayWindow.showOverlay(
+        height: 60,
+        width: 60,
+        alignment: OverlayAlignment.bottomRight,
+        overlayTitle: "Scan",
+        overlayContent: "Tap to scan",
+        enableDrag: false,
+      );
+    } else {
+      bool? isGranted = await FlutterOverlayWindow.requestPermission();
+      if (isGranted ?? false) {
+        await FlutterOverlayWindow.showOverlay(
+          height: 60,
+          width: 60,
+          alignment: OverlayAlignment.bottomRight,
+          overlayTitle: "Scan",
+          overlayContent: "Tap to scan",
+          enableDrag: false,
+        );
+      }
+    }
+  }
+
+  Key scannerKey = UniqueKey();
+
+  void restartScanner() {
+    setState(() {
+      scannerKey = UniqueKey();
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return BarcodeScanner(
-      lineColor: lineColor,
-      cancelButtonText: cancelButtonText,
-      isShowFlashIcon: isShowFlashIcon,
-      scanType: scanType,
-      appBarTitle: appBarTitle,
-      centerTitle: centerTitle,
-      child: child,
-      onScanned: (res) {
-        Navigator.pop(context, res);
-      },
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          BarcodeScanner(
+            lineColor: widget.lineColor,
+            cancelButtonText: widget.cancelButtonText,
+            isShowFlashIcon: widget.isShowFlashIcon,
+            scanType: widget.scanType,
+            appBarTitle: widget.appBarTitle,
+            centerTitle: widget.centerTitle,
+            onScanned: (res) async {
+              SearchApi searchApi = SearchApi();
+              var item = await searchApi.getProductByBarcode(res);
+              if (item != null && item['name'] != "-") {
+                print("Product found: " + item.toString());
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProductDetailView(
+                      itemNo: item['itemNo'],
+                    ),
+                  ),
+                );
+              } else if (res != "-1" && item['name'] == "-") {
+                print("No matched product: " + res);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('There is no matched product'),
+                  ),
+                );
+
+                Future.delayed(Duration(seconds: 3), () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => SimpleBarcodeScannerPage()),
+                  );
+                });
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          Positioned(
+            right: 30,
+            bottom: 30,
+            child: FloatingActionButton(
+              onPressed: () {
+              Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => SimpleBarcodeScannerPage()),
+              );
+              },
+                child: Icon(Icons.barcode_reader),
+                backgroundColor: Color(0xffECECEC),
+                foregroundColor: Color(0xff343F56),
+              ),
+            )
+        ],
+      )
     );
+
   }
 }
+
