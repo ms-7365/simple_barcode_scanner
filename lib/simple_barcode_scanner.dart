@@ -3,8 +3,8 @@ library simple_barcode_scanner;
 import 'package:flutter/material.dart';
 import 'package:simple_barcode_scanner/enum.dart';
 import 'package:simple_barcode_scanner/screens/shared.dart';
-import 'package:kofoos/src/pages/search/search_detail_page.dart';
-import 'package:kofoos/src/pages/search/api/search_api.dart';
+import '../../../flutter/lib/src/pages/search/api/search_api.dart';
+import '../../../flutter/lib/src/pages/search/search_detail_page.dart';
 
 export 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
