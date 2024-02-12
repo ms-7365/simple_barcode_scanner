@@ -5,9 +5,8 @@ import 'package:simple_barcode_scanner/enum.dart';
 import 'package:simple_barcode_scanner/screens/shared.dart';
 import 'package:kofoos/src/pages/search/search_detail_page.dart';
 import 'package:kofoos/src/pages/search/api/search_api.dart';
-import 'package:kofoos/src/pages/camera/barcode_view.dart';
+
 export 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
-import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
 class SimpleBarcodeScannerPage extends StatefulWidget {
   ///Barcode line color default set to #ff6666
