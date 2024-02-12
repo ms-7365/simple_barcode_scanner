@@ -52,30 +52,30 @@ class _SimpleBarcodeScannerPageState extends State<SimpleBarcodeScannerPage>{
 
 
 
-  void showOverlayButton() async {
-    if (await FlutterOverlayWindow.isPermissionGranted()) {
-      await FlutterOverlayWindow.showOverlay(
-        height: 60,
-        width: 60,
-        alignment: OverlayAlignment.bottomRight,
-        overlayTitle: "Scan",
-        overlayContent: "Tap to scan",
-        enableDrag: false,
-      );
-    } else {
-      bool? isGranted = await FlutterOverlayWindow.requestPermission();
-      if (isGranted ?? false) {
-        await FlutterOverlayWindow.showOverlay(
-          height: 60,
-          width: 60,
-          alignment: OverlayAlignment.bottomRight,
-          overlayTitle: "Scan",
-          overlayContent: "Tap to scan",
-          enableDrag: false,
-        );
-      }
-    }
-  }
+  // void showOverlayButton() async {
+  //   if (await FlutterOverlayWindow.isPermissionGranted()) {
+  //     await FlutterOverlayWindow.showOverlay(
+  //       height: 60,
+  //       width: 60,
+  //       alignment: OverlayAlignment.bottomRight,
+  //       overlayTitle: "Scan",
+  //       overlayContent: "Tap to scan",
+  //       enableDrag: false,
+  //     );
+  //   } else {
+  //     bool? isGranted = await FlutterOverlayWindow.requestPermission();
+  //     if (isGranted ?? false) {
+  //       await FlutterOverlayWindow.showOverlay(
+  //         height: 60,
+  //         width: 60,
+  //         alignment: OverlayAlignment.bottomRight,
+  //         overlayTitle: "Scan",
+  //         overlayContent: "Tap to scan",
+  //         enableDrag: false,
+  //       );
+  //     }
+  //   }
+  // }
 
   Key scannerKey = UniqueKey();
 
